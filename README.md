@@ -1,6 +1,6 @@
 # SSRLCV Sample Data
 
-The sample data here is a part of a dataset that was used in Caleb Adams' Thesis, [High Performance Computation with Small Satellites and Small Satellite Swarms for 3D Reconstruction](http://piepieninja.github.io/research-papers/thesis.pdf). The datasets here are used to test the SSRLCV software library, the SSRLCV is maintained at [the SSRLCV gitlab page](https://gitlab.smallsat.uga.edu/payload_software/SSRLCV) and [mirrored on github](https://github.com/uga-ssrl/SSRLCV). Additional test data is generated with the aid of the utility scripts in the [SSRLCV-Utilities gitlab repo](https://gitlab.smallsat.uga.edu/payload_software/ssrlcv-utilities), mirrored on githuib as [SSRLCV-Util](https://github.com/uga-ssrl/SSRLCV-Util). If you use these test sets in future research, or the methods described below to generate more test data, please cite my thesis:
+The sample data here is a part of a dataset that was used in Caleb Adams' Thesis, [High Performance Computation with Small Satellites and Small Satellite Swarms for 3D Reconstruction](http://piepieninja.github.io/research-papers/thesis.pdf). The datasets here are used to test the SSRLCV software library, the SSRLCV is maintained at [the SSRLCV gitlab page](https://gitlab.smallsat.uga.edu/payload_software/SSRLCV) and [mirrored on github](https://github.com/uga-ssrl/SSRLCV). Additional test data is generated with the aid of the utility scripts in the [SSRLCV-Utilities gitlab repo](https://gitlab.smallsat.uga.edu/payload_software/ssrlcv-utilities), mirrored on github as [SSRLCV-Util](https://github.com/uga-ssrl/SSRLCV-Util). If you use these test sets in future research, or the methods described below to generate more test data, please cite my thesis:
 
 ```
 @mastersthesis{CalebAdamsMSThesis,
@@ -15,7 +15,7 @@ The sample data here is a part of a dataset that was used in Caleb Adams' Thesis
 
 ## Included Sample Data
 
-Some existing sample data is located within this repository, but this does not include all of the availible test data. The included data is as follows:
+Some existing sample data is located within this repository, but this does not include all of the available test data. The included data is as follows:
 
 
 * `everest1024`: These test sets contain simulated 1024 x 1024 images of everest
@@ -40,11 +40,11 @@ Some existing sample data is located within this repository, but this does not i
     * `1.png`: Nadir facing image
     * `2.png`: 10 degrees off nadir image
     * `params.csv`: ASCII encoded camera parameters. These parameters are defined on [the SSRLCV gitlab page](https://gitlab.smallsat.uga.edu/payload_software/SSRLCV) and [mirrored on github](https://github.com/uga-ssrl/SSRLCV).
-* `seeds`: various seed images used for feature matching threasholds in SSRLCV
+* `seeds`: various seed images used for feature matching thresholds in SSRLCV
 
 ## Tests used in my Thesis
 
-These tests are by far the **most comprihensive** and **most useful** SSRLCV tests done thus far (May 2020). The [datasets used in my thesis](http://104.236.14.11/CalebAdams-Tests-Used-In-Thesis/) are freely availible online and [compressed in a traball here](http://104.236.14.11/CalebAdams-Tests-Used-In-Thesis.tar.gz). These tests include ground truth models for comparison, the output model produced by the test, an `ssrlcv.log` file with states and power usage over the pipeline, and the output of VSFM for comparison.
+These tests are by far the **most comprehensive** and **most useful** SSRLCV tests done thus far (May 2020). The [datasets used in my thesis](http://104.236.14.11/CalebAdams-Tests-Used-In-Thesis/) are freely available online and [compressed in a traball here](http://104.236.14.11/CalebAdams-Tests-Used-In-Thesis.tar.gz). These tests include ground truth models for comparison, the output model produced by the test, an `ssrlcv.log` file with states and power usage over the pipeline, and the output of VSFM for comparison.
 
 #### Downloading Additional Data
 
@@ -112,35 +112,119 @@ The ground truth models, raw blender files, and STRM data are provided as follow
 
 #### Test Data Optical Properties
 
-The optical properties of the camera used to generate the simulated images are derived from Blender's Pinhole caemra model. This model is limited and some issue occur with the feild of view and the focal length. Because the two of these are tied together in Blender's camera model, the FOC is chosen to be correct while the FOV is incorrect so that the resultant GSD of the system is as accurate as possible.
+The optical properties of the camera used to generate the simulated images are derived from Blender's Pinhole camera model. This model is limited and some issues occur with the field of view and the focal length. Because the two of these are tied together in Blender's camera model, the FOC is chosen to be correct while the FOV is incorrect so that the resultant GSD of the system is as accurate as possible.
 
-#### Correcting for erronious Feild of View
+#### Correcting for Erroneous Field of View
 
+The issue is that, when choosing a given focal length `foc`, an erroneous field of view `fov_e` is generated. Due to the way Blender camera modeling works, this `fov_e` is always larger than reality. The general idea is to caclulate the needed pixel density to crop the image later and generate the correct `fov`.
+
+Let's say that the desired resolution of our image is `res`. The blender camera model will produce an erronous `foc_e` that generates an image with a resolution of `pix`. We seek to caclulate the value of `pix` so that we can generate an image at that resolution and crop it to our desired `res`.
+
+using the tangent we can use the two following equations to find the desired `pix` value for rendering:
+
+```
+tan(fov_e) = pix / ( 2 * f )
+```
+
+and
+
+```
+tan(fov) = res / ( 2 * f )
+```
+
+Substitution results in (I multiply by 2 to get the full length):
+
+```
+pix = ( res * tan(fov_e) ) / ( 2 * tan(fov) )
+```
+
+Just plug in the desired final `res`, the erronously generated feild of view `fov_e`, and the true feild of view `fov` to get the render value `pix`. round `pix` to the nearest integer. The resultant images sjpi;d ne cropped from the center down to the `res` value. This keeps the GSD, field of view, and focal length of the desired optic.
 
 ## Generating New Sample Data
 
-To generate new sample data you must you must have a Blender install that is capible of using the [BlenderGIS addon](https://github.com/domlysz/BlenderGIS/wiki/Install-and-usage). Follow the [BlenderGIS Install and Usage](https://github.com/domlysz/BlenderGIS/wiki/Install-and-usage) instructions before continuing.
+To generate new sample data you must have a Blender install that is capable of using the [BlenderGIS addon](https://github.com/domlysz/BlenderGIS/wiki/Install-and-usage). Follow the [BlenderGIS Install and Usage](https://github.com/domlysz/BlenderGIS/wiki/Install-and-usage) instructions before continuing.
 
-Then, follow the instructions on the [BlenderGIS quickstart guide](https://github.com/domlysz/BlenderGIS/wiki/Quick-start) to gererate a 3D model of a given area on earth from [Shuttle Radar Topography Mission (STRM)](https://www2.jpl.nasa.gov/srtm/) data. Find the area you desire to generate a 3D reconstruction of
+Then, follow the instructions on the [BlenderGIS quickstart guide](https://github.com/domlysz/BlenderGIS/wiki/Quick-start) to generate a 3D model of a given area on earth from [Shuttle Radar Topography Mission (STRM)](https://www2.jpl.nasa.gov/srtm/) data.
+
+#### BlenderGIS setup
 
 The following steps can be used to generate semi-realistic imagery:
 
 1. Add a light source with `Add > Light > Sun`. Then, under **Object Properties** set the `z` location to `500000` m
 2. Add the Camera with `Add > Camera`, you can set the `z` location to `400000` m (`400` km) under **Object Properties** to start.
-3. Under the **Object Data Properties** of the camera select a focal length of `270` mm, this is the effective focal of the RUDA camera systems as of May 2020. **Always** use the effective focal length and not the measured distance. The feild of view will be automatically adjusted to ~ `7.63` degree. This is unavoidable due to blender constraints. See the section above on *Test Data Optical Properties* and *Correcting Erronious Feild of View* for a discription of needed future work.
+3. Under the **Object Data Properties** of the camera select a focal length of `270` mm, this is the effective focal of the RUDA camera systems as of May 2020. **Always** use the effective focal length and not the measured distance. The field of view will be automatically adjusted to ~ `7.63` degree. This is unavoidable due to blender constraints. See the section above on *Test Data Optical Properties* and *Correcting Erroneous Field of View* for a description of needed future work.
 4. Under the same **Object Data Properties** of the camera, change the render ending distance (called the clip distance) End to `500000` m.
-5. Under **Scene** change the the `X` and `Y` render resolutions of `4096` for a realistic case or `1024` for a simple test case
+5. Under **Scene** change the the `X` and `Y` render resolutions of `4096` for a realistic case or `1024` for a simple test case. For the adjusted case, where the image is cropped post rendering, set the resolution to the value of `pix` cacluated in the *Correcting for Erroneous Field of View* section.
 6. Remove the glossiness of the mesh by turning `Specular` to `0.0` under the **Material Properties** of the exported `EXPORT_GOOGLE_SAT_WM` mesh object.
 
-After those steps above you should save your blender file. Now you will 
+#### Satellite Orientation, Position, and Slew
 
+After those steps above you should save your blender file. Now you will now generate the orbital position and orientation data for the renderings. I have provided a script in the [SSRLCV-Utilities gitlab repo](https://gitlab.smallsat.uga.edu/payload_software/ssrlcv-utilities), which is [mirrored on github](https://github.com/uga-ssrl/SSRLCV), that contains a script to do this automatically for you. The details of this are covered in my thesis in the [SSRLCV Simulations with Blender section under the Experements and Results chapter](http://piepieninja.github.io/research-papers/thesis.pdf); it basically boils down to solving a quadratic.
 
+The `track_orbit_camera_gen.py` script contained in the [SSRLCV-Utilities gitlab repo](https://gitlab.smallsat.uga.edu/payload_software/ssrlcv-utilities), which is [mirrored on github](https://github.com/uga-ssrl/SSRLCV), will generate 7 images with off-nadir angles of 3 degrees each with the following example:
 
+```
+python3 io/track_orbit_camera_gen.py 400 3 7
+```
 
+The program will output slew information, camera parameter information, and blender rendering information. Example slew information is of the form:
 
+```
+-----------------------------------------------------------
+  orbit angle (rad): 0.003092571033663451
+  input angle (rad): 0.05235987755982989
+  orbit arclen (km): 20.96144646617087
+   grnd arclen (km): 19.72441805270549
+    velocity (km/s): 7.66863623504974
+      slew time (s): 2.733399502034785
+Tracking Slews:
+    slew rate (rad/s): 0.019155589046113596
+    slew rate (deg/s): 1.0975344064293395
+Nadir Slews:
+    slew rate (rad/s): 0.0011314010379241282
+    slew rate (deg/s): 0.06482450440977335
+-----------------------------------------------------------
+```
 
+Camera parameters are printed off next and should be copied into a `params.csv` file. The `params.csv` file should be placed into an empty folder titled `example-data` or some other name. The output of the program at this stage is of the form:
 
+```
+     ---- Copy to params.csv ----
+1.png,0.0,0.0,400000.0,0.0,0.0,0.0,
+2.png,20.96141305365656,0.0,399.9675876447502,0.0,0.05235987755982996,0.0,
+3.png,-20.96141305365656,0.0,399.9675876447502,0.0,-0.05235987755982996,0.0,
+4.png,42.02799884713057,0.0,399.86969831324694,0.0,0.1047197551196597,0.0,
+5.png,-42.02799884713057,0.0,399.86969831324694,0.0,-0.1047197551196597,0.0,
+6.png,63.30694946788028,0.0,399.7043480922854,0.0,0.15707963267948966,0.0,
+7.png,-63.30694946788028,0.0,399.7043480922854,0.0,-0.15707963267948966,0.0,
+```
 
+Lastly, the blender parameters are generated. These parameters should be manually copied into blender and are output in the form:
+
+```
+     ----   Copy to Blender  ----
+0.0,0.0,0.0, y rotate: 0.0
+20961.41305365656,0.0,399967.5876447502, y rotate: 3.0 deg
+-20961.41305365656,0.0,399967.5876447502, y rotate: -3.0 deg
+42027.99884713057,0.0,399869.69831324695, y rotate: 6.0 deg
+-42027.99884713057,0.0,399869.69831324695, y rotate: -6.0 deg
+63306.94946788028,0.0,399704.3480922854, y rotate: 9.0 deg
+-63306.94946788028,0.0,399704.3480922854, y rotate: -9.0 deg
+```
+
+The values above are generated in the form `X,Y,Z, Y rotation`. The first should have a `z` altitude of your desired orbit and all `0` elements for each other item. The following steps should be taken for each image exluding the first:
+
+1. Under the Camera's **Object Properties** set the `X` value to the generated value
+2. Under the Camera's **Object Properties** set the `Y` value to `0.0`
+3. Under the Camera's **Object Properties** set the `Z` value to the generated value
+4. Under the Camera's **Object Properties** set the `Y rotation` value to the generated value
+5. Select `Render > Render Image`
+6. Select `Image > Save As`. Save the image in the same folder as the `params.csv` file and name the image `#.png` where `#` is an integer matching the values in the `params.csv`. Each time you save an image you should increase the integer `#`.
+7. If using the adjusted value of `pix` (described in the *Correcting for Erroneous Field of View* section), crop the image back down to the correct resolution `res`
+
+#### Scripting Sample Data Generation
+
+With the steps and tools provided, scripting data generation is possible. This should be considered future work
 
 
 <!--  -->
