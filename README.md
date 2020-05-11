@@ -13,8 +13,24 @@ The sample data here is a part of a dataset that was used in Caleb Adams' Thesis
 }
 ```
 
-## Existing Sample Data
+The datasets used in my thesis are found at [link TBD]().
 
-Some existing sample data is located within this repository, but this does not include all of the availible test data. 
+## Included Existing Sample Data
+
+Some existing sample data is located within this repository, but this does not include all of the availible test data. The included data is as follows:
+
+
+* `everest1024`: These test sets contain simulated 1024 x 1024 images of everest
+  * `everest1024/2view`:
+  * `everest1024/3view`:
+  * `everest1024/5view`:
+* `everest4096`: A test set containing simulated 4096 x 4096 imagery of everest
+  * `everest4096/2view`:
+
+## Downloading Additional Existing Data
+
+
 
 ## Generating Sample Data
+
+To generate new sample data you must you must have a Blender install that is capible of using the [BlenderGIS addon](https://github.com/domlysz/BlenderGIS/wiki/Install-and-usage). Follow the [BlenderGIS Install and Usage](https://github.com/domlysz/BlenderGIS/wiki/Install-and-usage) instructions before continuing.
