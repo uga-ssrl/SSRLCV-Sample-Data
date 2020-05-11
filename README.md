@@ -138,7 +138,7 @@ Substitution results in (I multiply by 2 to get the full length):
 pix = ( res * tan(fov_e) ) / ( 2 * tan(fov) )
 ```
 
-Just plug in the desired final `res`, the erronously generated feild of view `fov_e`, and the true feild of view `fov` to get the render value `pix`. round `pix` to the nearest integer. The resultant images sjpi;d ne cropped from the center down to the `res` value. This keeps the GSD, field of view, and focal length of the desired optic.
+Just plug in the desired final `res`, the erronously generated feild of view `fov_e`, and the true feild of view `fov` to get the render value `pix`. round `pix` to the nearest integer. The resultant images need to be cropped from the center down to the `res` value. This keeps the GSD, field of view, and focal length of the desired optic.
 
 ## Generating New Sample Data
 
