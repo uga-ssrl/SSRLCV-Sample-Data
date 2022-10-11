@@ -1,0 +1,14 @@
+ply
+format ascii 1.0
+element vertex 0
+property float x
+property float y
+property float z
+property uchar diffuse_red
+property uchar diffuse_green
+property uchar diffuse_blue
+property int32 number_of_camera_sees_this_point
+property float vsfm_cnx
+property float vsfm_cny
+property float vsfm_cnz
+end_header
