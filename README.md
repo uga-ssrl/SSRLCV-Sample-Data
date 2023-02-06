@@ -1,6 +1,6 @@
 # SSRLCV Sample Data
 
-The sample data here is a part of a dataset that was used in Caleb Adams' Thesis, [High Performance Computation with Small Satellites and Small Satellite Swarms for 3D Reconstruction](http://piepieninja.github.io/research-papers/thesis.pdf). The datasets here are used to test the SSRLCV software library, the SSRLCV is maintained at [the SSRLCV gitlab page](https://gitlab.smallsat.uga.edu/payload_software/SSRLCV) and [mirrored on github](https://github.com/uga-ssrl/SSRLCV). Additional test data is generated with the aid of the utility scripts in the [SSRLCV-Utilities gitlab repo](https://gitlab.smallsat.uga.edu/payload_software/ssrlcv-utilities), mirrored on github as [SSRLCV-Util](https://github.com/uga-ssrl/SSRLCV-Util). If you use these test sets in future research, or the methods described below to generate more test data, please cite my thesis:
+The sample data here is a part of a dataset that was used in Caleb Adams' Thesis, [High Performance Computation with Small Satellites and Small Satellite Swarms for 3D Reconstruction](http://piepieninja.github.io/research-papers/thesis.pdf) and later in Eric Miller's thesis, [Engineering a Reliable Software Stack for Computer Vision on Small Satellites](https://esploro.libs.uga.edu/esploro/outputs/graduate/Engineering-a-Reliable-Software-Stack-for/9949515423502959/filesAndLinks?institution=01GALI_UGA&index=0). The datasets here are used to test the SSRLCV software library, the SSRLCV is maintained at [the SSRLCV gitlab page](https://gitlab.smallsat.uga.edu/payload_software/SSRLCV) and [mirrored on github](https://github.com/uga-ssrl/SSRLCV). Additional test data is generated with the aid of the utility scripts in the [SSRLCV-Utilities gitlab repo](https://gitlab.smallsat.uga.edu/payload_software/ssrlcv-utilities), mirrored on github as [SSRLCV-Util](https://github.com/uga-ssrl/SSRLCV-Util). If you use these test sets in future research, or the methods described below to generate more test data, please cite my thesis:
 
 ```
 @mastersthesis{CalebAdamsMSThesis,
@@ -146,7 +146,19 @@ To generate new sample data you must have a Blender install that is capable of u
 
 Then, follow the instructions on the [BlenderGIS quickstart guide](https://github.com/domlysz/BlenderGIS/wiki/Quick-start) to generate a 3D model of a given area on earth from [Shuttle Radar Topography Mission (STRM)](https://www2.jpl.nasa.gov/srtm/) data.
 
-#### BlenderGIS setup
+The high level workflow looks like:
+
+1. Run `track_orbit_camera_gen.py` with the correct altitude, step size, and number of pictures.
+   1. This outputs params for both SSRLCV and Blender.
+2. Use Blender (with Blender GIS) and put the position/rotation from step 1 into your Blender camera object. Each line (i.e., number of pictures) should be a different camera object.
+3. Set the intrinsic values of your Blender camera as desired (e.g. field of view, focal length, etc).
+4. Take pictures with your Blender cameras in the order they were listed in the output of step 1. Name your photos `1.png`, `2.png`, etc.
+5. In the same directory as your photos, create a `params.csv`, copying in the SSRLCV parameters from step 1 (**different** from the Blender params).
+6. Note that `params.csv` right now just contains columns for the extrinsic parameters (position and rotation in $x$, $y$, and $z$). Use the format discussed in SSRLCV's README to fill in the rest of the values (e.g., focal length, field of view, pixel size, resolution) based on what you set them to be in Blender.
+
+More detail is discussed in the subsections below.
+
+### BlenderGIS setup
 
 The following steps can be used to generate semi-realistic imagery:
 
@@ -157,7 +169,7 @@ The following steps can be used to generate semi-realistic imagery:
 5. Under **Scene** change the the `X` and `Y` render resolutions of `4096` for a realistic case or `1024` for a simple test case. For the adjusted case, where the image is cropped post rendering, set the resolution to the value of `pix` cacluated in the *Correcting for Erroneous Field of View* section.
 6. Remove the glossiness of the mesh by turning `Specular` to `0.0` under the **Material Properties** of the exported `EXPORT_GOOGLE_SAT_WM` mesh object.
 
-#### Satellite Orientation, Position, and Slew
+### Satellite Orientation, Position, and Slew
 
 After those steps above you should save your blender file. Now you will now generate the orbital position and orientation data for the renderings. I have provided a script in the [SSRLCV-Utilities gitlab repo](https://gitlab.smallsat.uga.edu/payload_software/ssrlcv-utilities), which is [mirrored on github](https://github.com/uga-ssrl/SSRLCV), that contains a script to do this automatically for you. The details of this are covered in my thesis in the [SSRLCV Simulations with Blender section under the Experements and Results chapter](http://piepieninja.github.io/research-papers/thesis.pdf); it basically boils down to solving a quadratic.
 
@@ -222,7 +234,7 @@ The values above are generated in the form `X,Y,Z, Y rotation`. The first should
 6. Select `Image > Save As`. Save the image in the same folder as the `params.csv` file and name the image `#.png` where `#` is an integer matching the values in the `params.csv`. Each time you save an image you should increase the integer `#`.
 7. If using the adjusted value of `pix` (described in the *Correcting for Erroneous Field of View* section), crop the image back down to the correct resolution `res`
 
-#### Scripting Sample Data Generation
+### Scripting Sample Data Generation
 
 With the steps and tools provided, scripting data generation is possible. This should be considered future work
 
